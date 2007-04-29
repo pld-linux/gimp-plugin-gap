@@ -24,7 +24,8 @@ BuildRequires:	libjpeg-devel
 %{?with_libmpeg3:BuildRequires:	libmpeg3-devel}
 BuildRequires:	nasm
 BuildRequires:	pkgconfig
-BuildRequires:	xvid-devel >= 1:1.0.0.
+BuildRequires:	xvid-devel >= 1:1.0.0
+Obsoletes:	gimp-mpeg
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		gimpplugindir	%(gimptool --gimpplugindir)/plug-ins
