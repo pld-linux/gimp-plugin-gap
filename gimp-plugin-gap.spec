@@ -27,8 +27,8 @@ BuildRequires:	pkgconfig
 BuildRequires:	xvid-devel >= 1:1.0.0.
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define gapplugindir %(gimptool --gimpplugindir)/plug-ins
-%define _scriptdir %(gimptool --gimpdatadir)/scripts
+%define		gimpplugindir	%(gimptool --gimpplugindir)/plug-ins
+%define		gimpscriptdir	%(gimptool --gimpdatadir)/scripts
 
 %description
 The GIMP-GAP (GIMP Animation Package) is a collection of Plug-Ins to
@@ -45,9 +45,9 @@ sekwencji pojedynczych ramek.
 
 %build
 %{__glib_gettextize}
-%__aclocal
-%__automake
-%__autoconf
+%{__aclocal}
+%{__automake}
+%{__autoconf}
 %configure \
 	%{!?with_ffmpeg:--disable-libavformat} \
 	%{!?with_libmpeg3:--disable-libmpeg3} \
@@ -71,8 +71,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -f %{name}.lang
 %defattr(644,root,root,755)
-%dir %{_libdir}/gimp-gap-2.2
-%attr(755,root,root) %{gapplugindir}/*
-%attr(755,root,root) %{_libdir}/gimp-gap-2.2/*
-%{__scriptdir}/*
 %doc AUTHORS ChangeLog NEWS README
+%dir %{_libdir}/gimp-gap-2.2
+%attr(755,root,root) %{_libdir}/gimp-gap-2.2/*
+%attr(755,root,root) %{gimpplugindir}/*
+%{gimpscriptdir}/*
