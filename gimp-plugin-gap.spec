@@ -54,8 +54,8 @@ sekwencji pojedynczych ramek.
 	%{!?with_libmpeg3:--disable-libmpeg3} \
 	%{!?with_xvid:--disable-libxvidcore} \
 	%{?with_gdkpixbuf:--enable-gdkpixbuf-pview} \
-	--with-preinstalled-libmpeg3incdir=%{_includedir} \
-	--with-preinstalled-libmpeg3libdir=%{_libdir}
+	--with-preinstalled-libmpeg3incdir=%{_includedir}/libmpeg3 \
+	--with-preinstalled-libmpeg3=%{_libdir}/libmpeg3.so
 
 %{__make}
 
