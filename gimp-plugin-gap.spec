@@ -1,20 +1,12 @@
-######		/root/rpm/SOURCES/rpm.groups: no such file
-
-%bcond_with	maintainer-mode        # enable make rules and dependencies not useful (and sometimes confusing) to the casual installer
-%bcond_without dependency-tracking # speeds up one-time build
-%bcond_without unix-frontends      # don't build with UNIX specific frontends for mplayer, xanim and mpeg encoders
-%bcond_without videoapi-support    # don't build with videoapi support
-%bcond_without libavformat         # don't build with libavformat/libavcodec  
-%bcond_without libmpeg3            # don't build with libmpeg3
-%bcond_without libxvidcore         # don't build with libxvidcore
-%bcond_without audio-support       # don't build with audio support
-%bcond_with gdkpixbuf-pview        # use GdkPixbuf thumbnail rendering (default=no)
-
-%bcond_without preinstalled-libmpeg3incdir # force link with an already installed libmpeg3 library and specify where to find libmpeg3 headerfiles
-%bcond_without preinstalled-libmpeg3 # full pathname of the preinstalled libmpeg3.a libraryfile
-
+#
+# Conditional build:
+%bcond_without	ffmpeg		# without libavformat/libavcodec
+%bcond_without	libmpeg3	# without libmpeg3
+%bcond_without	xvid		# without xvid support
+%bcond_with	gdkpixbuf	# use GdkPixbuf thumbnail rendering (default=no)
+#
 Summary:	The GIMP Animation Package
-Summary(pl):	Pakiet animacyjny dla GIMP'a
+Summary(pl.UTF-8):	Pakiet animacyjny dla GIMP-a
 Name:		gimp-plugin-gap
 Version:	2.2.1
 Release:	1
@@ -29,6 +21,7 @@ BuildRequires:	gettext-devel
 BuildRequires:	gimp-devel >= 2.2.0
 BuildRequires:	intltool
 BuildRequires:	libjpeg-devel
+%{?with_libmpeg3:BuildRequires:	libmpeg3-devel}
 BuildRequires:	nasm
 BuildRequires:	pkgconfig
 BuildRequires:	xvid-devel >= 1:1.0.0.
@@ -42,9 +35,9 @@ The GIMP-GAP (GIMP Animation Package) is a collection of Plug-Ins to
 extend GIMP 2.2 with capabilities to edit and create animations as
 sequences of single frames.
 
-%description -l pl
-GIMP-GAP (GIMP Animation Package) jest kolekcj± wtyczek
-rozszerzaj±cych GIMPa o mo¿liwo¶æ edycji i tworzenia animacji i
+%description -l pl.UTF-8
+GIMP-GAP (GIMP Animation Package) jest kolekcjÄ… wtyczek
+rozszerzajÄ…cych GIMP-a o moÅ¼liwoÅ›Ä‡ edycji i tworzenia animacji i
 sekwencji pojedynczych ramek.
 
 %prep
@@ -56,17 +49,12 @@ sekwencji pojedynczych ramek.
 %__automake
 %__autoconf
 %configure \
-  %{?with_maintainer-mode --enable-maintainer-mode} \
-  %{?without_dependency-tracking --disable-dependency-tracking} \
-  %{?without_unix-frontends --disable-unix-frontends} \
-  %{?without_videoapi-support --disable-videoapi-support} \
-  %{?without_libavformat --disable-libavformat} \
-  %{?without_libmpeg3 --disable-libmpeg3} \
-  %{?without_libxvidcore --disable-libxvidcore} \
-  %{?without_audio-support --disable-audio-support} \
-  %{?with_gdkpixbuf-pview --enable-gdkpixbuf-pview} \
-  %{!?without_preinstalled-libmpeg3incdir --with-preinstalled-libmpeg3incdir=%{_libdir}} \
-  %{!?without_preinstalled-libmpeg3incdir --with-preinstalled-libmpeg3incdir=%{_libdir}/libmpeg3.a}
+	%{!?with_ffmpeg:--disable-libavformat} \
+	%{!?with_libmpeg3:--disable-libmpeg3} \
+	%{!?with_xvid:--disable-libxvidcore} \
+	%{?with_gdkpixbuf:--enable-gdkpixbuf-pview} \
+	--with-preinstalled-libmpeg3incdir=%{_includedir} \
+	--with-preinstalled-libmpeg3libdir=%{_libdir}
 
 %{__make}
 
