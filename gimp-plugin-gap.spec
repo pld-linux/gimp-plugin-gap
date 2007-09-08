@@ -10,12 +10,12 @@
 Summary:	The GIMP Animation Package
 Summary(pl.UTF-8):	Pakiet animacyjny dla GIMP-a
 Name:		gimp-plugin-gap
-Version:	2.2.1
+Version:	2.2.2
 Release:	1
-License:	GPL
+License:	GPL v2+
 Group:		X11/Applications/Graphics
 Source0:	ftp://ftp.gimp.org/pub/gimp/plug-ins/v2.2/gap/gimp-gap-%{version}.tar.bz2
-# Source0-md5:	c2aa33b5240c57aa6bf9ffc686f3e3ac
+# Source0-md5:	2c7ea1cf560a2693310781265d8f3c05
 URL:		http://www.gimp.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
