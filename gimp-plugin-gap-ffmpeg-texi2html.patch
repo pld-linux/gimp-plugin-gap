@@ -1,0 +1,12 @@
+diff -ruN ffmpeg.orig/Makefile ffmpeg/Makefile
+--- ffmpeg.orig/Makefile	2009-02-21 19:41:52.000000000 +0100
++++ ffmpeg/Makefile	2015-03-28 03:03:48.357921636 +0100
+@@ -118,7 +118,7 @@
+                                  $(ALLMANPAGES))
+ 
+ doc/%.html: doc/%.texi
+-	texi2html -monolithic -number $<
++	texi2html -monolithic -number-footnotes $<
+ 	mv $(@F) $@
+ 
+ doc/%.pod: doc/%-doc.texi
