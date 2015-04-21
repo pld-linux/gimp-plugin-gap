@@ -20,6 +20,7 @@ Group:		X11/Applications/Graphics
 Source0:	http://download.gimp.org/pub/gimp/plug-ins/v2.6/gap/%{pkgname}-%{version}.tar.bz2
 # Source0-md5:	249ed829de8b78675c0fe4ef4212089f
 Patch0:		%{name}-ffmpeg-texi2html.patch
+Patch1:		%{name}-format.patch
 URL:		http://www.gimp.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -50,6 +51,7 @@ sekwencji pojedynczych ramek.
 
 %prep
 %setup -q -n %{pkgname}-%{version}
+%patch1 -p1
 
 %build
 %{__glib_gettextize}
@@ -63,7 +65,10 @@ sekwencji pojedynczych ramek.
 	%{?with_libmpeg3:--with-preinstalled-libmpeg3incdir=%{_includedir}/libmpeg3} \
 	%{?with_libmpeg3:--with-preinstalled-libmpeg3=%{_libdir}/libmpeg3.so}
 
-(cd extern_libs/ffmpeg && %{__patch} -p1 < %{PATCH0})
+cd extern_libs/ffmpeg
+%patch0 -p1
+cd ../..
+
 %{__make} -j1
 
 %install
@@ -72,7 +77,7 @@ rm -rf $RPM_BUILD_ROOT
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
 
-rm -f $RPM_BUILD_ROOT%{_libdir}/%{pkgname}-%{pkgver}/*.a
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/%{pkgname}-%{pkgver}/*.a
 
 %find_lang %{name} --all-name
 

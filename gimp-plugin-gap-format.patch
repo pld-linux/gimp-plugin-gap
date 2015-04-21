@@ -1,0 +1,345 @@
+--- gimp-gap-2.6.0/gap/gap_arr_dialog.c.orig	2009-06-04 22:38:03.000000000 +0200
++++ gimp-gap-2.6.0/gap/gap_arr_dialog.c	2015-04-20 20:24:45.280256664 +0200
+@@ -1859,7 +1859,7 @@
+ 
+        if(run_mode == GIMP_RUN_INTERACTIVE)
+        {
+-         g_message (msg);
++         g_message ("%s", msg);
+        }
+     }
+   }
+@@ -1877,8 +1877,8 @@
+   static GapArrButtonArg  b_argv[1];
+   static GapArrArg  argv[1];
+ 
+-  b_argv[1].but_txt  = GTK_STOCK_OK;
+-  b_argv[1].but_val  = TRUE;
++  b_argv[0].but_txt  = GTK_STOCK_OK;
++  b_argv[0].but_val  = TRUE;
+ 
+   gap_arr_arg_init(&argv[0], GAP_ARR_WGT_LABEL);
+   argv[0].label_txt = msg;
+--- gimp-gap-2.6.0/gap/gap_split.c.orig	2009-06-04 22:38:03.000000000 +0200
++++ gimp-gap-2.6.0/gap/gap_split.c	2015-04-21 15:52:39.752129428 +0200
+@@ -54,6 +54,7 @@
+ #endif
+ 
+ /* GIMP includes */
++#include "glib/gstdio.h"
+ #include "gtk/gtk.h"
+ #include "config.h"
+ #include "gap-intl.h"
+@@ -342,12 +343,7 @@
+              g_remove(l_sav_name);
+              if(g_file_test(l_sav_name, G_FILE_TEST_EXISTS))
+              {
+-               char *errMsg;
+-               
+-               errMsg = g_strdup_printf(_("failed to overwrite %s (check permissions ?)")
+-                                      , l_sav_name);
+-               g_message(errMsg);
+-               g_free(errMsg);
++               g_message(_("failed to overwrite %s (check permissions ?)"), l_sav_name);
+                writePermission = FALSE;
+              }
+           }
+--- gimp-gap-2.6.0/gap/gap_fmac_main.c.orig	2009-06-04 22:38:03.000000000 +0200
++++ gimp-gap-2.6.0/gap/gap_fmac_main.c	2015-04-21 15:54:56.225459917 +0200
+@@ -128,7 +128,6 @@
+ static void  p_setbutton_sensitivity(fmac_globalparams_t *gpp);
+ 
+ static gboolean  p_chk_filtermacro_file(const char *filtermacro_file);
+-static void      p_print_and_free_msg(char *msg, GimpRunMode run_mode);
+ static gchar *   p_get_gap_filter_data_string(const char *plugin_name);
+ static gchar *   p_get_mapped_gap_filter_data_string(const char *plugin_name, const char *filtermacro_file);
+ static gint      p_fmac_add_filter_to_file(const char *filtermacro_file, const char *plugin_name);
+@@ -356,22 +355,6 @@
+ 
+ 
+ 
+-/* --------------------
+- * p_print_and_free_msg
+- * --------------------
+- */
+-static void
+-p_print_and_free_msg(char *msg, GimpRunMode run_mode)
+-{
+-  if(run_mode == GIMP_RUN_INTERACTIVE)
+-  {
+-    g_message(msg);
+-  }
+-  printf("%s\n", msg);
+-  g_free(msg);
+-}  /* end p_print_and_free_msg */
+-
+-
+ /* ----------------------------
+  * p_get_gap_filter_data_string
+  * ----------------------------
+--- gimp-gap-2.6.0/gap/gap_fmac_base.c.orig	2009-06-04 22:38:03.000000000 +0200
++++ gimp-gap-2.6.0/gap/gap_fmac_base.c	2015-04-21 15:57:17.862123631 +0200
+@@ -96,7 +96,7 @@
+ {
+   if(run_mode == GIMP_RUN_INTERACTIVE)
+   {
+-    g_message(msg);
++    g_message("%s", msg);
+   }
+   printf("%s\n", msg);
+   g_free(msg);
+--- gimp-gap-2.6.0/gap/gap_morph_exec.c.orig	2009-06-04 22:38:03.000000000 +0200
++++ gimp-gap-2.6.0/gap/gap_morph_exec.c	2015-04-21 15:58:36.768788653 +0200
+@@ -204,7 +204,7 @@
+   
+   if(run_mode != GIMP_RUN_NONINTERACTIVE)
+   {
+-    g_message(l_msg);
++    g_message("%s", l_msg);
+   }
+   g_free(l_msg);
+ 
+--- gimp-gap-2.6.0/gap/gap_vex_dialog.c.orig	2009-06-04 22:38:03.000000000 +0200
++++ gimp-gap-2.6.0/gap/gap_vex_dialog.c	2015-04-21 16:04:13.155448308 +0200
+@@ -912,7 +912,7 @@
+      break;
+  }
+  g_snprintf(gpp->val.preferred_decoder, sizeof(gpp->val.preferred_decoder)
+-               , preferred_decoder
++               , "%s", preferred_decoder
+                );
+  entry = GTK_ENTRY(gpp->mw__entry_preferred_decoder);
+  if(entry)
+--- gimp-gap-2.6.0/libgapvidutil/gap_gve_sox.c.orig	2009-06-04 22:38:03.000000000 +0200
++++ gimp-gap-2.6.0/libgapvidutil/gap_gve_sox.c	2015-04-21 16:32:34.915412838 +0200
+@@ -94,7 +94,6 @@
+   long        all_playlist_references;
+   long        valid_playlist_references;
+   int    l_rc;
+-  gchar *l_msg;
+ 
+   if(gap_debug) printf("gap_gve_sox_chk_and_resample\n");
+ 
+@@ -149,12 +148,11 @@
+      g_remove(cval->tmp_audfile);
+      if(g_file_test(cval->tmp_audfile, G_FILE_TEST_EXISTS))
+      {
+-        l_msg = g_strdup_printf(_("ERROR: Can't overwrite temporary workfile\nfile: %s")
+-                           , cval->tmp_audfile);
+         if(cval->run_mode == GIMP_RUN_INTERACTIVE)
+         {
+-          g_message(l_msg);
+-            }
++          g_message(_("ERROR: Can't overwrite temporary workfile\nfile: %s")
++                           , cval->tmp_audfile);
++        }
+         return -1;
+      }
+ 
+@@ -167,17 +165,15 @@
+ 
+      if(!g_file_test(cval->tmp_audfile, G_FILE_TEST_EXISTS))
+      {
+-       l_msg = g_strdup_printf(_("ERROR: Could not create resampled WAV workfile\n\n"
++       if(cval->run_mode == GIMP_RUN_INTERACTIVE)
++       {
++         g_message(_("ERROR: Could not create resampled WAV workfile\n\n"
+                                "1.) check write permission on \n  file:  %s\n"
+                                "2.) check if SOX (version >= 12.16) is installed:\n  prog:  %s\n")
+                        , cval->tmp_audfile
+                        , cval->util_sox
+                        );
+-       if(cval->run_mode == GIMP_RUN_INTERACTIVE)
+-       {
+-         g_message(l_msg);
+-           }
+-       g_free(l_msg);
++       }
+        return -1;
+      }
+   }
+--- gimp-gap-2.6.0/vid_common/gap_cme_gui.c.orig	2009-06-04 22:38:03.000000000 +0200
++++ gimp-gap-2.6.0/vid_common/gap_cme_gui.c	2015-04-21 16:50:53.375389942 +0200
+@@ -53,6 +53,7 @@
+ #include <string.h>
+ #include <stdlib.h>
+ 
++#include <glib/gstdio.h>
+ #include <gtk/gtk.h>
+ 
+ #include "gap-intl.h"
+@@ -1989,7 +1990,6 @@
+ gboolean
+ gap_cme_gui_check_encode_OK (GapCmeGlobalParams *gpp)
+ {
+-  gchar       *l_msg;
+   long        samplerate, samplerate2;
+   long        channels;
+   long        bytes_per_sample;
+@@ -2028,14 +2028,12 @@
+     if(((gpp->val.vid_width % 16)  != 0)
+     || ((gpp->val.vid_height % 16)  != 0))
+     {
+-      l_msg = g_strdup_printf(_("Error:\nfor MPEG width and height must be a multiple of 16\n"
++      g_message(_("Error:\nfor MPEG width and height must be a multiple of 16\n"
+                          "set Width to %d\n"
+                          "set Height to %d")
+                          , (int)(gpp->val.vid_width / 16) * 16
+                          , (int)(gpp->val.vid_height / 16) * 16
+                          );
+-      g_message(l_msg);
+-      g_free(l_msg);
+       return (FALSE);
+     }
+   }
+@@ -2051,14 +2049,12 @@
+      {
+        if((bits != 8) && (bits != 16))
+        {
+-         l_msg = g_strdup_printf(_("Error: Unsupported Bit per Sample %d\n"
++         g_message(_("Error: Unsupported Bit per Sample %d\n"
+                             "file: %s\n"
+                             "supported are 8 or 16 Bit")
+                             , (int)bits
+                             , gpp->val.audioname1
+                             );
+-         g_message(l_msg);
+-         g_free(l_msg);
+          return (FALSE);
+        }
+ 
+@@ -2072,12 +2068,10 @@
+   {
+     if(gpp->val.audioname1[0] != '\0')
+     {
+-         l_msg = g_strdup_printf(_("Error: Audiofile not found\n"
++         g_message(_("Error: Audiofile not found\n"
+                             "file: %s\n")
+                             , gpp->val.audioname1
+                             );
+-         g_message(l_msg);
+-         g_free(l_msg);
+          return (FALSE);
+     }
+   }
+@@ -2095,13 +2089,11 @@
+          case 48000:
+              break;
+          default:
+-             l_msg = g_strdup_printf(_("Error: Unsupported Samplerate for MPEG1 Layer2 Audio Encoding\n"
++             g_message(_("Error: Unsupported Samplerate for MPEG1 Layer2 Audio Encoding\n"
+                                 "current rate: %d\n"
+                                 "supported rates: \n"
+                                 " 22050, 24000, 32000, 44100, 48000")
+                                 , (int)gpp->val.samplerate);
+-             g_message(l_msg);
+-             g_free(l_msg);
+              return (FALSE);
+              break;
+       }
+@@ -2123,13 +2115,11 @@
+          case 48000:
+              break;
+          default:
+-             l_msg = g_strdup_printf(_("Error: Unsupported Samplerate for MPEG2 Layer3 Audio Encoding\n"
++             g_message(_("Error: Unsupported Samplerate for MPEG2 Layer3 Audio Encoding\n"
+                                 "current rate: %d\n"
+                                 "supported rates:\n"
+                                 " 8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000")
+                                 , (int)gpp->val.samplerate);
+-             g_message(l_msg);
+-             g_free(l_msg);
+              return (FALSE);
+              break;
+       }
+@@ -3869,7 +3859,6 @@
+   gchar            *l_proc_date;
+   GimpParamDef    *l_paramdef;
+   GimpParamDef    *l_return_vals;
+-  char *l_msg;
+   gint  l_use_encoderspecific_params;
+   gint  l_rc;
+   gchar            *l_16bit_wav_file;
+@@ -3925,12 +3914,10 @@
+                           &l_paramdef,
+                           &l_return_vals))
+   {
+-     l_msg = g_strdup_printf(_("Required Plugin %s not available"), gpp->val.ecp_sel.vid_enc_plugin);
+      if(gpp->val.run_mode == GIMP_RUN_INTERACTIVE)
+      {
+-       g_message(l_msg);
++       g_message(_("Required Plugin %s not available"), gpp->val.ecp_sel.vid_enc_plugin);
+      }
+-     g_free(l_msg);
+      return -1;
+   }
+ 
+@@ -3977,12 +3964,10 @@
+   
+   if(l_rc < 0)
+   {
+-     l_msg = g_strdup_printf(_("Call of Required Plugin %s failed"), gpp->val.ecp_sel.vid_enc_plugin);
+      if(gpp->val.run_mode == GIMP_RUN_INTERACTIVE)
+      {
+-       g_message(l_msg);
++       g_message(_("Call of Required Plugin %s failed"), gpp->val.ecp_sel.vid_enc_plugin);
+      }
+-     g_free(l_msg);
+   }
+ 
+ 
+--- gimp-gap-2.6.0/vid_enc_ffmpeg/gap_enc_ffmpeg_main.c.orig	2009-06-04 22:38:03.000000000 +0200
++++ gimp-gap-2.6.0/vid_enc_ffmpeg/gap_enc_ffmpeg_main.c	2015-04-21 17:10:04.132032624 +0200
+@@ -1028,9 +1028,9 @@
+     printf("gap_enc_ffmpeg_main_init_preset_params L_IDX:%d\n", (int)l_idx);
+   }
+ 
+-  g_snprintf(epp->format_name, sizeof(epp->format_name), tab_format_name[l_idx]);   /* "avi" */
+-  g_snprintf(epp->vcodec_name, sizeof(epp->vcodec_name), tab_vcodec_name[l_idx]);   /* "msmpeg4" */
+-  g_snprintf(epp->acodec_name, sizeof(epp->acodec_name), tab_acodec_name[l_idx]);   /* "mp2" */
++  g_snprintf(epp->format_name, sizeof(epp->format_name), "%s", tab_format_name[l_idx]);   /* "avi" */
++  g_snprintf(epp->vcodec_name, sizeof(epp->vcodec_name), "%s", tab_vcodec_name[l_idx]);   /* "msmpeg4" */
++  g_snprintf(epp->acodec_name, sizeof(epp->acodec_name), "%s", tab_acodec_name[l_idx]);   /* "mp2" */
+ 
+ 
+   epp->pass_nr             = 1;
+@@ -2392,7 +2392,7 @@
+     }
+     else
+     {
+-       g_message(msg);
++       g_message("%s", msg);
+     }
+     g_free(msg);
+   }
+--- gimp-gap-2.6.0/vid_enc_ffmpeg/gap_enc_ffmpeg_callbacks.c.orig	2009-06-04 22:38:03.000000000 +0200
++++ gimp-gap-2.6.0/vid_enc_ffmpeg/gap_enc_ffmpeg_callbacks.c	2015-04-21 17:11:56.358696951 +0200
+@@ -68,7 +68,6 @@
+                  GapGveFFMpegGlobalParams *gpp)
+ {
+   GtkWidget *dialog;
+-  char *l_msg;
+ 
+   if(gpp)
+   {
+@@ -94,18 +93,14 @@
+       {
+         if (gpp->val.vid_width % 2 != 0)
+         {
+-            l_msg = g_strdup_printf("Error:\nWidth (%d) must be an integer multiple of 2",
++           g_message("Error:\nWidth (%d) must be an integer multiple of 2",
+                                  (int)gpp->val.vid_width);
+-           g_message(l_msg);
+-           g_free(l_msg);
+            return;
+         }
+         if (gpp->val.vid_height % 2 != 0)
+         {
+-            l_msg = g_strdup_printf("Error:\nHeight (%d) must be an integer multiple of 2",
++            g_message("Error:\nHeight (%d) must be an integer multiple of 2",
+                                (int)gpp->val.vid_height);
+-            g_message(l_msg);
+-            g_free(l_msg);
+             return;
+         }
+         gpp->val.run = TRUE;
