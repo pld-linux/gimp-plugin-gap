@@ -1,11 +1,11 @@
 # TODO:
-# - try to use update to current libmpeg3 API
-# - try to use system ffmpeg (some old snap here)
+# - try to use system ffmpeg (some ancient 0.5 snap here)
 #
 # Conditional build:
-%bcond_without	xvid		# without xvid support
-%bcond_with	gdkpixbuf	# use GdkPixbuf thumbnail rendering (default=no)
-%bcond_with	libmpeg3	# use system libmpeg3 (1.5.x only)
+%bcond_without	xvid			# without xvid support
+%bcond_with	gdkpixbuf		# use GdkPixbuf thumbnail rendering (default=no)
+%bcond_with	system_ffmpeg		# use system ffmpeg (ancient only)
+%bcond_without	system_libmpeg3		# use system libmpeg3
 
 %define		pkgname	gimp-gap
 %define		pkgver	2.6
@@ -22,14 +22,20 @@ Source0:	http://download.gimp.org/pub/gimp/plug-ins/v2.6/gap/%{pkgname}-%{versio
 Patch0:		%{name}-ffmpeg-texi2html.patch
 Patch1:		%{name}-format.patch
 URL:		http://www.gimp.org/
-BuildRequires:	autoconf
+BuildRequires:	autoconf >= 2.52
 BuildRequires:	automake
+%{!?with_system_ffmpeg:BuildRequires:	bzip2-devel}
+%{!?with_system_ffmpeg:BuildRequires:	faac-devel}
+%{!?with_system_ffmpeg:BuildRequires:	faad2-devel}
 BuildRequires:	gettext-devel
 BuildRequires:	gimp-devel >= 2.6.0
-BuildRequires:	intltool
+BuildRequires:	glib2-devel >= 1:2.8.0
+BuildRequires:	intltool >= 0.35.0
+%{!?with_system_ffmpeg:BuildRequires:	lame-libs-devel}
 BuildRequires:	libjpeg-devel
-%{?with_libmpeg3:BuildRequires:	libmpeg3-devel >= 1.5}
-%{?with_libmpeg3:BuildRequires:	libmpeg3-devel < 1.6}
+%{?with_system_libmpeg3:BuildRequires:	libmpeg3-devel >= 1.8}
+# ABI 0.65
+%{!?with_system_ffmpeg:BuildRequires:	libx264-devel}
 BuildRequires:	nasm
 BuildRequires:	pkgconfig
 BuildRequires:	xvid-devel >= 1:1.0.0
@@ -55,15 +61,15 @@ sekwencji pojedynczych ramek.
 
 %build
 %{__glib_gettextize}
-%{__aclocal}
-%{__automake}
-%{__autoconf}
 %{__intltoolize}
+%{__aclocal}
+%{__autoconf}
+%{__automake}
 %configure \
-	%{!?with_xvid:--disable-libxvidcore} \
+	%{!?with_xvid:--disable-libxvidcore --disable-ff-libxvid} \
 	%{?with_gdkpixbuf:--enable-gdkpixbuf-pview} \
-	%{?with_libmpeg3:--with-preinstalled-libmpeg3incdir=%{_includedir}/libmpeg3} \
-	%{?with_libmpeg3:--with-preinstalled-libmpeg3=%{_libdir}/libmpeg3.so}
+	%{?with_system_libmpeg3:--with-preinstalled-libmpeg3incdir=%{_includedir}/libmpeg3} \
+	%{?with_system_libmpeg3:--with-preinstalled-libmpeg3=%{_libdir}/libmpeg3.so}
 
 cd extern_libs/ffmpeg
 %patch0 -p1
@@ -79,6 +85,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %{__rm} $RPM_BUILD_ROOT%{_libdir}/%{pkgname}-%{pkgver}/*.a
 
+%{__mv} $RPM_BUILD_ROOT%{_localedir}/{sr@Latn,sr@latin}
+
 %find_lang %{name} --all-name
 
 %clean
@@ -90,4 +98,5 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/%{pkgname}-%{pkgver}
 %attr(755,root,root) %{_libdir}/%{pkgname}-%{pkgver}/audioconvert_to_wav.sh
 %attr(755,root,root) %{gimpplugindir}/gap_*
-%{gimpscriptdir}/*.scm
+%{gimpscriptdir}/gap-dup-continue.scm
+%{gimpscriptdir}/sel-to-anim-img.scm
